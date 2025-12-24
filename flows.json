@@ -1,0 +1,500 @@
+[
+    {
+        "id": "5bdbc6b4f67317a9",
+        "type": "tab",
+        "label": "Omgevingsmonitor",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2cb501a35fd81f06",
+        "type": "http in",
+        "z": "5bdbc6b4f67317a9",
+        "name": "",
+        "url": "/om/....../data",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 200,
+        "wires": [
+            [
+                "99be6750047c859e",
+                "6a1cad7111128d96"
+            ]
+        ]
+    },
+    {
+        "id": "99be6750047c859e",
+        "type": "http response",
+        "z": "5bdbc6b4f67317a9",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 410,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "d3a8e0a9b6727d9a",
+        "type": "debug",
+        "z": "5bdbc6b4f67317a9",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "15d5a9b0a33c9919",
+        "type": "ui-text",
+        "z": "5bdbc6b4f67317a9",
+        "group": "94400dea7ad9ce35",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Uptime",
+        "label": "Uptime: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-right",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload.Uptime",
+        "valueType": "msg",
+        "x": 680,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "8427baed03d5202b",
+        "type": "influxdb out",
+        "z": "5bdbc6b4f67317a9",
+        "influxdb": "10a614c6ace9eee5",
+        "name": "InfluxDB Out",
+        "measurement": "omgeving",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 690,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "6a1cad7111128d96",
+        "type": "function",
+        "z": "5bdbc6b4f67317a9",
+        "name": "Structure data",
+        "func": "// remove unused sensor\nmsg.payload = msg.payload.filter(obj => Object.keys(obj)[0] !== \"PM1\");\nmsg.payload = msg.payload.filter(obj => Object.keys(obj)[0] !== \"PM2p5\");\nmsg.payload = msg.payload.filter(obj => Object.keys(obj)[0] !== \"PM4\");\nmsg.payload = msg.payload.filter(obj => Object.keys(obj)[0] !== \"PM10\");\nmsg.payload = msg.payload.filter(obj => Object.keys(obj)[0] !== \"NOX\");\n\n\n// make it a single object\nmsg.payload = msg.payload.reduce((acc, obj) => ({ ...acc, ...obj }), {});\n\n// convert Uptime to numeric\nlet data = msg.payload\nif (data.Uptime !== undefined) {\n    let num = parseFloat(data.Uptime);\n    if (!isNaN(num)) {\n        data.Uptime = num; // overwrite string with number\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 300,
+        "wires": [
+            [
+                "d3a8e0a9b6727d9a",
+                "8427baed03d5202b",
+                "15d5a9b0a33c9919",
+                "a67f91c4d1864f35",
+                "7a06ce43dcc55303",
+                "375dbf96271ebd80",
+                "c061224fecf142b0",
+                "3ce357ce8db40ada"
+            ]
+        ]
+    },
+    {
+        "id": "a67f91c4d1864f35",
+        "type": "ui-gauge",
+        "z": "5bdbc6b4f67317a9",
+        "name": "",
+        "group": "94400dea7ad9ce35",
+        "order": 3,
+        "value": "payload.Temperature",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Temperature",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "C",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "-10",
+                "color": "#e95352",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "10",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "18",
+                "color": "#00f900",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "25",
+                "color": "#fec700",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "30",
+                "color": "#e95352",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": "-10",
+        "max": "40",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 690,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7a06ce43dcc55303",
+        "type": "ui-gauge",
+        "z": "5bdbc6b4f67317a9",
+        "name": "",
+        "group": "94400dea7ad9ce35",
+        "order": 4,
+        "value": "payload.Humidity",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Humidity",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "%",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "40",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "70",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 680,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "375dbf96271ebd80",
+        "type": "ui-gauge",
+        "z": "5bdbc6b4f67317a9",
+        "name": "",
+        "group": "94400dea7ad9ce35",
+        "order": 6,
+        "value": "payload.BatteryVoltage",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Battery",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "Volt",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "5",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 680,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c061224fecf142b0",
+        "type": "ui-gauge",
+        "z": "5bdbc6b4f67317a9",
+        "name": "",
+        "group": "94400dea7ad9ce35",
+        "order": 5,
+        "value": "payload.SolarVoltage",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Solar",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "Volt",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "10",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 670,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ce357ce8db40ada",
+        "type": "ui-text",
+        "z": "5bdbc6b4f67317a9",
+        "group": "94400dea7ad9ce35",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Timestamp: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-right",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "$now()",
+        "valueType": "jsonata",
+        "x": 690,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "cd7349c222864a24",
+        "type": "comment",
+        "z": "5bdbc6b4f67317a9",
+        "name": "URL omgevingmonitor posts to",
+        "info": "",
+        "x": 170,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "94400dea7ad9ce35",
+        "type": "ui-group",
+        "name": "Omgevingsmonitor",
+        "page": "389593ef4a55f733",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "10a614c6ace9eee5",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "omgevingsmonitor",
+        "name": "sensor data",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "389593ef4a55f733",
+        "type": "ui-page",
+        "name": "Omgevingsmonitor",
+        "ui": "461eb22d07a3c1d7",
+        "path": "/om",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "88bcfc3398ebdbd8",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "461eb22d07a3c1d7",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "88bcfc3398ebdbd8",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "025015f03c46a227",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.29.0",
+            "node-red-contrib-influxdb": "0.7.0"
+        }
+    }
+]
